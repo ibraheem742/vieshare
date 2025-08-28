@@ -12,10 +12,24 @@ export async function getFeaturedStores(): Promise<Store[]> {
   noStore()
   try {
     const records = await pb.collection(COLLECTIONS.STORES).getList<Store>(1, 8, {
+      filter: 'active = true',
       sort: '-created',
       expand: 'user'
     })
-    return records.items
+
+    const storesWithProductCount = await Promise.all(
+      records.items.map(async (store) => {
+        const products = await pb.collection(COLLECTIONS.PRODUCTS).getList(1, 1, {
+          filter: `store = "${store.id}"`,
+        })
+        return {
+          ...store,
+          productCount: products.totalItems,
+        }
+      })
+    )
+
+    return storesWithProductCount
   } catch (error) {
     console.error('Error fetching featured stores:', error)
     return []
