@@ -31,7 +31,26 @@ export default async function DashboardStoreLayout({
     redirect("/signin")
   }
 
-  const storesPromise = getStoresByUserId({ userId: user.id })
+  // Validate storeId format
+  if (!storeId || storeId.length < 15) {
+    console.error('Invalid storeId format:', storeId)
+    redirect("/dashboard")
+  }
+
+  const stores = await getStoresByUserId({ userId: user.id })
+  console.log('User stores:', stores.map(s => ({ id: s.id, name: s.name })))
+  console.log('Looking for storeId:', decodedStoreId)
+  
+  const userStore = stores.find(store => store.id === decodedStoreId)
+  
+  // Redirect if store doesn't exist or doesn't belong to user
+  if (!userStore) {
+    console.error('Store not found or does not belong to user:', decodedStoreId)
+    console.error('Available stores:', stores.map(s => s.id))
+    redirect("/dashboard")
+  }
+
+  const storesPromise = Promise.resolve(stores)
   const planMetricsPromise = getUserPlanMetrics({ userId: user.id })
 
   return (

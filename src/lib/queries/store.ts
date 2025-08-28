@@ -1,7 +1,6 @@
 import "server-only"
 
 import {
-  unstable_cache as cache,
   unstable_noStore as noStore,
 } from "next/cache"
 import type { SearchParams } from "@/types"

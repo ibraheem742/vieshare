@@ -25,6 +25,11 @@ interface DashboardStorePageProps {
 async function getStoreFromParams(params: Awaited<DashboardStorePageProps["params"]>) {
   const { storeId } = params
 
+  if (!storeId || storeId.length < 15) {
+    console.error("Invalid storeId:", storeId)
+    return null
+  }
+
   try {
     const store = await pb.collection(COLLECTIONS.STORES).getOne(storeId)
     return store

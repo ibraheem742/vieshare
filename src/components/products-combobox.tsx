@@ -20,9 +20,13 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Icons } from "@/components/icons"
 import { Kbd } from "@/components/kbd"
 
-type ProductGroup = NonNullable<
-  Awaited<ReturnType<typeof filterProducts>>["data"]
->[number]
+interface ProductGroup {
+  name: string
+  products: Array<{
+    id: string
+    name: string
+  }>
+}
 
 export function ProductsCombobox() {
   const router = useRouter()
@@ -53,7 +57,7 @@ export function ProductsCombobox() {
         setLoading(false)
         return
       }
-      setData(data)
+      setData(data as ProductGroup[])
       setLoading(false)
     }
 
@@ -122,13 +126,13 @@ export function ProductsCombobox() {
               <Skeleton className="h-8 rounded-sm" />
             </div>
           ) : (
-            data?.map((group) => (
+            data?.map((group: ProductGroup) => (
               <CommandGroup
                 key={group.name}
                 className="capitalize"
                 heading={group.name}
               >
-                {group.products.map((item: ProductGroup["products"][number]) => {
+                {group.products?.map((item) => {
                   return (
                     <CommandItem
                       key={item.id}

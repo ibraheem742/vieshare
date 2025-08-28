@@ -105,14 +105,32 @@ export async function filterProducts(filters: any) {
     if (filters.category) filter += ` && category = "${filters.category}"`
     if (filters.subcategory) filter += ` && subcategory = "${filters.subcategory}"`
     if (filters.store) filter += ` && store = "${filters.store}"`
-    if (filters.search) filter += ` && name ~ "${filters.search}"`
+    if (filters.query) filter += ` && name ~ "${filters.query}"`
     
     const products = await pb.collection('products').getList(1, 50, {
       filter,
-      sort: '-created'
+      sort: '-created',
+      expand: 'category'
     })
     
-    return { data: products.items, error: null }
+    // Group products by category
+    const groupedProducts = products.items.reduce((acc: any, product: any) => {
+      const categoryName = product.expand?.category?.name || product.category || 'Other'
+      
+      if (!acc[categoryName]) {
+        acc[categoryName] = {
+          name: categoryName,
+          products: []
+        }
+      }
+      
+      acc[categoryName].products.push(product)
+      return acc
+    }, {})
+    
+    const groupedArray = Object.values(groupedProducts)
+    
+    return { data: groupedArray, error: null }
   } catch (err) {
     console.error(err)
     return { data: [], error: "Failed to fetch products" }

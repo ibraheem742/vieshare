@@ -6,6 +6,7 @@ import { DotsHorizontalIcon } from "@radix-ui/react-icons"
 import { type ColumnDef } from "@tanstack/react-table"
 
 import { formatDate, formatPrice } from "@/lib/utils"
+import { useDataTable } from "@/hooks/use-data-table"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -107,18 +108,18 @@ export function CustomersTable({ promise, storeId }: CustomersTableProps) {
     [storeId]
   )
 
-  return null
+  const { table } = useDataTable({
+    data,
+    columns,
+    pageCount,
+    filterFields: [
+      {
+        label: "emails",
+        value: "email" as keyof AwaitedCustomer,
+        placeholder: "Search emails...",
+      },
+    ],
+  })
 
-  // return (
-  //   <DataTable
-  //     data={data}
-  //     pageCount={pageCount}
-  //     searchableColumns={[
-  //       {
-  //         id: "email",
-  //         title: "emails",
-  //       },
-  //     ]}
-  //   />
-  // )
+  return <DataTable table={table} />
 }
