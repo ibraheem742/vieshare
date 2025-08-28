@@ -45,7 +45,7 @@ export function CreateStore({ userId }: CreateStoreProps) {
       }
 
       if (data) {
-        router.push(`/dashboard/store/${data.id}`)
+        router.push(`/store/${data.id}`)
       }
 
       form.reset()
