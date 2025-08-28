@@ -5,10 +5,9 @@ import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { MinusIcon, PlusIcon } from "@radix-ui/react-icons"
 import { useForm } from "react-hook-form"
-import { toast } from "sonner"
 import type { z } from "zod"
 
-import { addToCart } from "@/lib/actions/cart"
+import { useCart } from "@/lib/hooks/use-cart"
 import { showErrorToast } from "@/lib/handle-error"
 import { cn } from "@/lib/utils"
 import { updateCartItemSchema } from "@/lib/validations/cart"
@@ -34,8 +33,10 @@ type Inputs = z.infer<typeof updateCartItemSchema>
 export function AddToCartForm({ productId, showBuyNow }: AddToCartFormProps) {
   const id = React.useId()
   const router = useRouter()
-  const [isAddingToCart, setIsAddingToCart] = React.useState(false)
-  const [isBuyingNow, setIsBuyingNow] = React.useState(false)
+  const { addItem, isLoading } = useCart((state) => ({
+    addItem: state.addItem,
+    isLoading: state.isLoading
+  }))
 
   // react-hook-form
   const form = useForm<Inputs>({
@@ -46,17 +47,11 @@ export function AddToCartForm({ productId, showBuyNow }: AddToCartFormProps) {
   })
 
   async function onSubmit(data: Inputs) {
-    setIsAddingToCart(true)
-    const { error } = await addToCart(productId, data.quantity)
-
-    if (error) {
+    try {
+      await addItem(productId, data.quantity)
+    } catch (error) {
       showErrorToast(error)
-      return
     }
-
-    toast.success("Product added to cart")
-
-    setIsAddingToCart(false)
   }
 
   return (
@@ -81,7 +76,7 @@ export function AddToCartForm({ productId, showBuyNow }: AddToCartFormProps) {
                 Math.max(0, form.getValues("quantity") - 1)
               )
             }
-            disabled={isAddingToCart}
+            disabled={isLoading}
           >
             <MinusIcon className="size-3" aria-hidden="true" />
             <span className="sr-only">Remove one item</span>
@@ -120,7 +115,7 @@ export function AddToCartForm({ productId, showBuyNow }: AddToCartFormProps) {
             onClick={() =>
               form.setValue("quantity", form.getValues("quantity") + 1)
             }
-            disabled={isAddingToCart}
+            disabled={isLoading}
           >
             <PlusIcon className="size-3" aria-hidden="true" />
             <span className="sr-only">Add one item</span>
@@ -134,21 +129,16 @@ export function AddToCartForm({ productId, showBuyNow }: AddToCartFormProps) {
               size="sm"
               className="w-full"
               onClick={async () => {
-                setIsBuyingNow(true)
-
-                const { error } = await addToCart(productId, form.getValues("quantity"))
-
-                if (error) {
+                try {
+                  await addItem(productId, form.getValues("quantity"))
+                  router.push("/cart")
+                } catch (error) {
                   showErrorToast(error)
-                  return
                 }
-
-                router.push("/cart")
-                setIsBuyingNow(false)
               }}
-              disabled={isBuyingNow}
+              disabled={isLoading}
             >
-              {isBuyingNow && (
+              {isLoading && (
                 <Icons.spinner
                   className="mr-2 size-4 animate-spin"
                   aria-hidden="true"
@@ -163,9 +153,9 @@ export function AddToCartForm({ productId, showBuyNow }: AddToCartFormProps) {
             variant={showBuyNow ? "outline" : "default"}
             size="sm"
             className="w-full"
-            disabled={isAddingToCart}
+            disabled={isLoading}
           >
-            {isAddingToCart && (
+            {isLoading && (
               <Icons.spinner
                 className="mr-2 size-4 animate-spin"
                 aria-hidden="true"
