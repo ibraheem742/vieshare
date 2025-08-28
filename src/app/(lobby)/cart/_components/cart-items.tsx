@@ -169,8 +169,8 @@ export function CartItems() {
               <span>{formatPrice(getTotalPrice())}</span>
             </div>
           </div>
-          <Button className="mt-6 w-full" size="lg">
-            Proceed to Checkout
+          <Button className="mt-6 w-full" size="lg" asChild>
+            <Link href="/checkout">Proceed to Checkout</Link>
           </Button>
           <Button asChild variant="outline" className="mt-2 w-full">
             <Link href="/products">Continue Shopping</Link>
