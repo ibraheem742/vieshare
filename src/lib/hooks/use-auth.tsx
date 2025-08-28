@@ -25,19 +25,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Check if user is already authenticated on page load
     const initAuth = async () => {
       try {
-        const savedToken = Cookies.get("pb_auth")
-        if (savedToken) {
-          pb.authStore.loadFromCookie(document.cookie)
-          if (pb.authStore.isValid) {
-            await pb.collection(COLLECTIONS.USERS).authRefresh()
-            const userData = pb.authStore.model as unknown as PBUser
-            setUser(userData)
-            setToken(pb.authStore.token)
-          }
-        }
+        // This will trigger the onChange event if the token is valid
+        await pb.collection(COLLECTIONS.USERS).authRefresh()
       } catch (error) {
-        console.error("Auth initialization failed:", error)
-        Cookies.remove("pb_auth")
+        // This will trigger the onChange event with a null user
+        pb.authStore.clear()
       } finally {
         setIsLoading(false)
       }

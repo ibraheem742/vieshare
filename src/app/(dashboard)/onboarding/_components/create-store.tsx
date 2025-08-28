@@ -45,10 +45,7 @@ export function CreateStore({ userId }: CreateStoreProps) {
       }
 
       if (data) {
-        const newSearchParams = new URLSearchParams(searchParams)
-        newSearchParams.set("step", "connect")
-        newSearchParams.set("store", data.id)
-        router.push(`/onboarding?${newSearchParams.toString()}`)
+        router.push(`/dashboard/store/${data.id}`)
       }
 
       form.reset()

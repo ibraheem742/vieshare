@@ -25,11 +25,13 @@ interface DashboardStorePageProps {
 async function getStoreFromParams(params: Awaited<DashboardStorePageProps["params"]>) {
   const { storeId } = params
 
-  const store = await pb.collection(COLLECTIONS.STORES).getOne(storeId).catch(() => null)
-
-  if (!store) return null
-
-  return store
+  try {
+    const store = await pb.collection(COLLECTIONS.STORES).getOne(storeId)
+    return store
+  } catch (error) {
+    console.error("Error fetching store:", error)
+    return null
+  }
 }
 
 export async function generateMetadata({
