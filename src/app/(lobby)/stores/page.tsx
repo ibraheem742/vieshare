@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 }
 
 interface StoresPageProps {
-  searchParams: SearchParams
+  searchParams: Promise<SearchParams>
 }
 
 export default async function StoresPage({ searchParams }: StoresPageProps) {
