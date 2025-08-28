@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import { env } from "@/env.js"
 import { pb, COLLECTIONS } from "@/lib/pocketbase"
 
-import { updateStoreAction, deleteStore } from "@/lib/actions/store"
+import { updateStoreAction } from "@/lib/actions/store"
 import {
   Card,
   CardContent,
