@@ -7,10 +7,12 @@ import { MinusIcon, PlusIcon, TrashIcon } from "@radix-ui/react-icons"
 
 import { useCartSafe, useCartInitializer } from "@/lib/hooks/use-cart"
 import { formatPrice } from "@/lib/utils"
+import { getImageUrls } from "@/lib/pocketbase-helpers"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Icons } from "@/components/icons"
+import { PlaceholderImage } from "@/components/placeholder-image"
 
 export function CartItems() {
   const { items, updateItem, removeItem, getTotalPrice, clearCart, isLoading } = useCartSafe()
@@ -60,23 +62,38 @@ export function CartItems() {
           {items.map((item) => {
             const product = item.expand?.product
             if (!product) return null
+
+            // Generate correct image URL using the same helper as ProductCard
+            const imageUrl = product.images && product.images.length > 0
+              ? getImageUrls(
+                  product,
+                  Array.isArray(product.images) 
+                    ? product.images 
+                    : [product.images]
+                )[0]
+              : null
             
             return (
               <div
                 key={item.id}
                 className="flex items-center gap-4 rounded-lg border p-4"
               >
-                {product.images?.[0] && (
-                  <div className="relative size-16 overflow-hidden rounded-md">
+                <div className="relative size-16 overflow-hidden rounded-md">
+                  {imageUrl ? (
                     <Image
-                      src={product.images[0]}
+                      src={imageUrl}
                       alt={product.name}
                       fill
                       className="object-cover"
                       sizes="64px"
+                      onError={(_e) => {
+                        console.error(`Failed to load image for ${product.name}:`, imageUrl)
+                      }}
                     />
-                  </div>
-                )}
+                  ) : (
+                    <PlaceholderImage className="rounded-md" asChild />
+                  )}
+                </div>
                 <div className="flex-1 space-y-1">
                   <h3 className="font-medium line-clamp-1">{product.name}</h3>
                   <p className="text-sm text-muted-foreground">
