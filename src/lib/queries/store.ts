@@ -35,6 +35,43 @@ export async function getFeaturedStores(): Promise<Store[]> {
   }
 }
 
+export async function getAllStores(input?: SearchParams): Promise<{ data: Store[]; pageCount: number }> {
+  noStore()
+  try {
+    const page = Number(input?.page) || 1
+    const per_page = Number(input?.per_page) || 8
+    
+    const records = await pb.collection(COLLECTIONS.STORES).getList<Store>(page, per_page, {
+      filter: 'active = true',
+      sort: '-created',
+      expand: 'user'
+    })
+
+    const storesWithProductCount = await Promise.all(
+      records.items.map(async (store) => {
+        const products = await pb.collection(COLLECTIONS.PRODUCTS).getList(1, 1, {
+          filter: `store = "${store.id}"`,
+        })
+        return {
+          ...store,
+          productCount: products.totalItems,
+        }
+      })
+    )
+
+    return {
+      data: storesWithProductCount,
+      pageCount: Math.ceil(records.totalItems / per_page),
+    }
+  } catch (error) {
+    console.error('Error fetching all stores:', error)
+    return {
+      data: [],
+      pageCount: 0,
+    }
+  }
+}
+
 export async function getStores(input: { userId: string }): Promise<Store[]> {
   noStore()
   try {
