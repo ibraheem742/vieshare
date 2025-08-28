@@ -30,17 +30,17 @@ export default function AuthLayout({ children }: React.PropsWithChildren) {
         <div className="absolute bottom-4 right-4 z-20 line-clamp-1 rounded-md bg-muted px-3 py-1.5 text-sm text-muted-foreground">
           Photo by{" "}
           <a
-            href="https://unsplash.com/ja/@pixelperfektion?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText"
+            href="https://www.youtube.com/@vie-vlogs"
             className="underline transition-colors hover:text-foreground"
           >
-            pixelperfektion
+            KhieuDV
           </a>
           {" on "}
           <a
-            href="https://unsplash.com/photos/OS2WODdxy1A?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText"
+            href="https://www.youtube.com/@vie-vlogs"
             className="underline transition-colors hover:text-foreground"
           >
-            Unsplash
+            YouTube
           </a>
         </div>
       </div>
