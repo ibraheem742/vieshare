@@ -96,6 +96,15 @@ export function SignInForm() {
           Sign in
           <span className="sr-only">Sign in</span>
         </Button>
+        <div className="mt-4 p-3 bg-muted/50 rounded-md border">
+          <p className="text-sm font-medium mb-2">Demo Account:</p>
+          <p className="text-sm text-muted-foreground">
+            Email: <span className="font-mono">admin@gmail.com</span>
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Password: <span className="font-mono">12345678</span>
+          </p>
+        </div>
       </form>
     </Form>
   )
