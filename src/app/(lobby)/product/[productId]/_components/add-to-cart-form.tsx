@@ -79,7 +79,7 @@ export function AddToCartForm({ productId, showBuyNow }: AddToCartFormProps) {
                 Math.max(0, form.getValues("quantity") - 1)
               )
             }
-            disabled={isLoading}
+            disabled={mounted && isLoading}
           >
             <MinusIcon className="size-3" aria-hidden="true" />
             <span className="sr-only">Remove one item</span>
@@ -118,7 +118,7 @@ export function AddToCartForm({ productId, showBuyNow }: AddToCartFormProps) {
             onClick={() =>
               form.setValue("quantity", form.getValues("quantity") + 1)
             }
-            disabled={isLoading}
+            disabled={mounted && isLoading}
           >
             <PlusIcon className="size-3" aria-hidden="true" />
             <span className="sr-only">Add one item</span>
@@ -139,9 +139,9 @@ export function AddToCartForm({ productId, showBuyNow }: AddToCartFormProps) {
                   showErrorToast(error)
                 }
               }}
-              disabled={isLoading}
+              disabled={mounted && isLoading}
             >
-              {isLoading && (
+              {mounted && isLoading && (
                 <Icons.spinner
                   className="mr-2 size-4 animate-spin"
                   aria-hidden="true"
@@ -156,9 +156,9 @@ export function AddToCartForm({ productId, showBuyNow }: AddToCartFormProps) {
             variant={showBuyNow ? "outline" : "default"}
             size="sm"
             className="w-full"
-            disabled={isLoading}
+            disabled={mounted && isLoading}
           >
-            {isLoading && (
+            {mounted && isLoading && (
               <Icons.spinner
                 className="mr-2 size-4 animate-spin"
                 aria-hidden="true"
