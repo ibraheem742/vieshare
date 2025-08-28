@@ -38,7 +38,7 @@ This is an open-source e-commerce platform for a vieshare, built with Next.js an
 1.  **Clone the repository**
 
     ```bash
-    git clone <repository-url>
+    git clone https://github.com/khieu-dv/vieshare
     ```
 
 2.  **Install dependencies**
@@ -77,7 +77,7 @@ docker-compose up -d
     This project uses a migration tool to manage the PocketBase schema. To apply the migrations, run the following command:
 
     ```bash
-    pnpm pocketbase-migrate
+    node import-fake-data.js
     ```
 
     This will create the necessary collections and fields in your PocketBase project. You can view the schema in the `pocketbase-schema.md` file.
