@@ -33,10 +33,13 @@ type Inputs = z.infer<typeof updateCartItemSchema>
 export function AddToCartForm({ productId, showBuyNow }: AddToCartFormProps) {
   const id = React.useId()
   const router = useRouter()
-  const { addItem, isLoading } = useCart((state) => ({
-    addItem: state.addItem,
-    isLoading: state.isLoading
-  }))
+  const [mounted, setMounted] = React.useState(false)
+  const addItem = useCart((state) => state.addItem)
+  const isLoading = useCart((state) => state.isLoading)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // react-hook-form
   const form = useForm<Inputs>({
