@@ -6,7 +6,7 @@ import { env } from "@/env.js"
 import type { SearchParams } from "@/types"
 import { pb, COLLECTIONS } from "@/lib/pocketbase"
 import type { OrderWithRelations } from "@/lib/pocketbase"
-import type { ListResult } from "pocketbase"
+type ListResult<T> = { items: T[]; totalItems: number; page: number; perPage: number; totalPages: number; }
 
 import { ordersSearchParamsSchema } from "@/lib/validations/params"
 import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton"
@@ -48,7 +48,7 @@ export default async function OrdersPage({
   // Number of items per page
   const limit = isNaN(per_page) ? 10 : per_page
   // Number of items to skip
-  const offset = fallbackPage > 0 ? (fallbackPage - 1) * limit : 0
+  const _offset = fallbackPage > 0 ? (fallbackPage - 1) * limit : 0
   // Column and order to sort by
   const [column, order] = (sort?.split(".") as [
     string | undefined,

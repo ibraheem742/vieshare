@@ -52,7 +52,7 @@ export const useCart = create<CartStore>()(
       set({ isLoading: true, error: null })
       try {
         const cartId = await getOrCreateCart()
-        const items = await getCartItems({ cartId })
+        const items = await getCartItems({ cartId }) as unknown as CartItem[]
         const itemCount = items.reduce((total, item) => total + item.quantity, 0)
         
         set({ 
@@ -92,7 +92,7 @@ export const useCart = create<CartStore>()(
     updateItem: async (itemId: string, quantity: number) => {
       set({ isLoading: true, error: null })
       try {
-        const result = await updateCartItem({ id: itemId, quantity })
+        const result = await updateCartItem(itemId, quantity)
         if (result.success) {
           // Update local state immediately
           const currentItems = get().items

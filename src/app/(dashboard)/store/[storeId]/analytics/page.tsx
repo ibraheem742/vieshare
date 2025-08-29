@@ -68,7 +68,7 @@ export default async function AnalyticsPage({
         )
       : undefined
 
-  const store = await pb.collection(COLLECTIONS.STORES).getOne(storeId).catch(() => null)
+  const store = await pb.collection(COLLECTIONS.STORES).getOne(storeId).catch(() => null) as any
 
   if (!store) {
     notFound()
@@ -176,7 +176,7 @@ export default async function AnalyticsPage({
                   </div>
                 </div>
                 <p className="text-sm font-medium leading-none">
-                  {formatPrice(customer.total_spent)}
+                  {formatPrice(customer.totalSpent || customer.total_spent)}
                 </p>
               </div>
             ))}

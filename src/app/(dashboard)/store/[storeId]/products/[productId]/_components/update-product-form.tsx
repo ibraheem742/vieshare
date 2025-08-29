@@ -68,7 +68,7 @@ export function UpdateProductForm({
   const [isUpdating, setIsUpdating] = React.useState(false)
   const [isDeleting, setIsDeleting] = React.useState(false)
   const [isUploadDialogOpen, setIsUploadDialogOpen] = React.useState(false)
-  const { uploadFiles, progresses, uploadedFiles, isUploading, clearFiles, removeFile } =
+  const { uploadFiles, progresses, uploadedFiles, isUploading, removeFile } =
     usePocketbaseUpload({ maxFiles: 4, maxFileSize: 4 * 1024 * 1024 })
 
   const form = useForm<UpdateProductSchema>({

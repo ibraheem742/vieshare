@@ -5,7 +5,8 @@ import {
   revalidatePath,
 } from "next/cache"
 
-import { pb, COLLECTIONS, type Store } from "@/lib/pocketbase"
+import { storesApi, type Store } from "@/lib/api"
+import { pb, COLLECTIONS } from "@/lib/pocketbase"
 import { type CreateStoreSchema } from "@/lib/validations/store"
 
 export async function createStore(input: CreateStoreSchema & { userId: string }): Promise<{
@@ -15,7 +16,7 @@ export async function createStore(input: CreateStoreSchema & { userId: string })
   noStore()
   
   try {
-    const store = await pb.collection(COLLECTIONS.STORES).create<Store>({
+    const store = await storesApi.createStore({
       name: input.name,
       slug: input.slug || input.name.toLowerCase().replace(/\s+/g, '-'),
       description: input.description || '',
@@ -50,7 +51,7 @@ export async function updateStore(input: { storeId: string } & Partial<CreateSto
     if (input.description !== undefined) updateData.description = input.description
     if (input.slug) updateData.slug = input.slug
     
-    const store = await pb.collection(COLLECTIONS.STORES).update<Store>(input.storeId, updateData)
+    const store = await storesApi.updateStore(input.storeId, updateData) as Store
     
     revalidatePath("/dashboard/stores")
     revalidatePath(`/store/${input.storeId}`)
@@ -74,7 +75,7 @@ export async function updateStoreAction(storeId: string, formData: FormData): Pr
     if (name) updateData.name = name
     if (description !== null) updateData.description = description
     
-    await pb.collection(COLLECTIONS.STORES).update(storeId, updateData)
+    await storesApi.updateStore(storeId, updateData)
     
     revalidatePath("/dashboard/stores")
     revalidatePath(`/store/${storeId}`)
@@ -92,7 +93,7 @@ export async function deleteStore(storeId: string): Promise<{
   noStore()
   
   try {
-    await pb.collection(COLLECTIONS.STORES).delete(storeId)
+    await storesApi.deleteStore(storeId)
     
     revalidatePath("/dashboard/stores")
     revalidatePath("/")

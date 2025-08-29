@@ -18,14 +18,23 @@ export default async function DashboardLayout({
     redirect("/signin")
   }
 
-  const storesPromise = getStoresByUserId({ userId: user.id })
+  const stores = await getStoresByUserId({ userId: user.id })
+  const storesPromise = Promise.resolve(stores)
   const planMetricsPromise = getUserPlanMetrics({ userId: user.id })
+  
+  // If no stores, redirect to onboarding
+  if (stores.length === 0) {
+    redirect("/onboarding")
+  }
+  
+  // Use first store ID as default
+  const defaultStoreId = stores[0]!.id
 
   return (
     <SidebarProvider>
       <div className="grid min-h-screen w-full lg:grid-cols-[17.5rem_1fr]">
         <DashboardSidebar
-          storeId="storeId"
+          storeId={defaultStoreId}
           className="top-0 z-30 hidden flex-col gap-4 border-r border-border/60 lg:sticky lg:block"
         >
           <StoreSwitcher
@@ -35,9 +44,9 @@ export default async function DashboardLayout({
           />
         </DashboardSidebar>
         <div className="flex flex-col">
-          <DashboardHeader storeId="storeId">
+          <DashboardHeader storeId={defaultStoreId}>
             <DashboardSidebarSheet className="lg:hidden">
-              <DashboardSidebar storeId="storeId">
+              <DashboardSidebar storeId={defaultStoreId}>
                 <StoreSwitcher
                   userId={user.id}
                   storesPromise={storesPromise}

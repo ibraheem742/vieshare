@@ -24,7 +24,7 @@ interface CreateStoreProps {
 
 export function CreateStore({ userId }: CreateStoreProps) {
   const router = useRouter()
-  const searchParams = useSearchParams()
+  const _searchParams = useSearchParams()
   const [isCreatePending, startCreateTransaction] = React.useTransition()
 
   const form = useForm<CreateStoreSchema>({

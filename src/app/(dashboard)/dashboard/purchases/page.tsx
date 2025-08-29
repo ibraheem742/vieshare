@@ -6,7 +6,8 @@ import type { SearchParams } from "@/types"
 
 import { pb, COLLECTIONS } from "@/lib/pocketbase"
 import type { OrderWithRelations } from "@/lib/pocketbase"
-import type { ListResult } from "pocketbase"
+// import type { ListResult } from "pocketbase" // Removed PocketBase dependency
+type ListResult<T> = { items: T[]; totalItems: number; page: number; perPage: number; totalPages: number; }
 import { getCachedUser } from "@/lib/queries/user"
 import { getUserEmail } from "@/lib/utils"
 import { purchasesSearchParamsSchema } from "@/lib/validations/params"
@@ -43,7 +44,7 @@ export default async function PurchasesPage({
     redirect("/signin")
   }
 
-  const email = getUserEmail(user) as string
+  const email = getUserEmail(user)
 
   // Fallback page for invalid page numbers
   const fallbackPage = isNaN(page) || page < 1 ? 1 : page
@@ -90,7 +91,7 @@ export default async function PurchasesPage({
           status: order.status,
           created: order.created,
           storeId: order.store,
-          store: order.expand?.store?.name || "Unknown Store",
+          store: order.expand?.store?.name ?? "Unknown Store",
         }
       })
 

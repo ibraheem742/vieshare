@@ -7,7 +7,7 @@ import { NextResponse } from "next/server"
 
 // Temporary middleware - passes through all requests
 // TODO: Implement PocketBase authentication middleware
-export default function middleware(request: NextRequest) {
+export default function middleware(_request: NextRequest) {
   try {
     // For now, just pass through all requests
     // Later, implement PocketBase auth checks here

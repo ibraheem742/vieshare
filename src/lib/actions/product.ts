@@ -2,11 +2,21 @@
 
 import { unstable_noStore as noStore, revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-import { pb, Product, COLLECTIONS } from "@/lib/pocketbase"
+import { productsApi, type Product } from "@/lib/api"
 
 export async function createProduct(storeId: string, formData: FormData) {
   try {
-    // TODO: Replace with PocketBase implementation
+    const productData = {
+      name: formData.get("name") as string,
+      description: formData.get("description") as string,
+      price: formData.get("price") as string,
+      inventory: Number(formData.get("inventory")),
+      categoryId: formData.get("categoryId") as string,
+      subcategoryId: formData.get("subcategoryId") as string || undefined,
+      active: true,
+    }
+    
+    await productsApi.createProduct(storeId, productData)
     revalidatePath("/")
     redirect(`/dashboard/stores/${storeId}/products`)
   } catch (err) {
@@ -25,15 +35,15 @@ export async function updateProduct(productId: string, data: any) {
     }
     
     // Only update category/subcategory if provided
-    if (data.categoryId) updateData.category = data.categoryId
-    if (data.subcategoryId) updateData.subcategory = data.subcategoryId
+    if (data.categoryId) updateData.categoryId = data.categoryId
+    if (data.subcategoryId) updateData.subcategoryId = data.subcategoryId
     
     // Handle images if provided
     if (data.images && Array.isArray(data.images)) {
       updateData.images = data.images.map((img: string | { url: string }) => typeof img === 'string' ? img : img.url)
     }
     
-    await pb.collection('products').update(productId, updateData)
+    await productsApi.updateProduct(productId, updateData)
     
     revalidatePath("/")
     return { success: true }
@@ -45,7 +55,7 @@ export async function updateProduct(productId: string, data: any) {
 
 export async function deleteProduct(productId: string) {
   try {
-    // TODO: Replace with PocketBase implementation
+    await productsApi.deleteProduct(productId)
     revalidatePath("/")
     return { success: true }
   } catch (err) {
@@ -57,8 +67,8 @@ export async function deleteProduct(productId: string) {
 export async function checkProductInventory(productId: string) {
   noStore()
   try {
-    // TODO: Replace with PocketBase implementation
-    return { available: true, stock: 100 }
+    const inventory = await productsApi.getProductInventory(productId)
+    return { available: inventory > 0, stock: inventory }
   } catch (err) {
     console.error(err)
     return { available: false, stock: 0 }
@@ -67,29 +77,18 @@ export async function checkProductInventory(productId: string) {
 
 export async function addProduct(storeId: string, data: any) {
   try {
-    // Create FormData for file upload
-    const formData = new FormData()
-    
-    // Add basic product data
-    formData.append('name', data.name)
-    formData.append('description', data.description || "")
-    formData.append('price', data.price)
-    formData.append('inventory', data.inventory || 0)
-    formData.append('category', data.categoryId)
-    formData.append('subcategory', data.subcategoryId || "")
-    formData.append('store', storeId)
-    formData.append('active', 'true')
-    
-    // Add image files if any
-    if (data.images && data.images.length > 0) {
-      data.images.forEach((fileData: any) => {
-        if (fileData.file) {
-          formData.append('images', fileData.file)
-        }
-      })
+    const productData = {
+      name: data.name,
+      description: data.description || "",
+      price: data.price,
+      inventory: data.inventory || 0,
+      categoryId: data.categoryId,
+      subcategoryId: data.subcategoryId || undefined,
+      active: true,
+      images: data.images || []
     }
     
-    const product = await pb.collection(COLLECTIONS.PRODUCTS).create(formData)
+    const product = await productsApi.createProduct(storeId, productData)
     
     revalidatePath(`/store/${storeId}/products`)
     revalidatePath("/")
@@ -102,7 +101,7 @@ export async function addProduct(storeId: string, data: any) {
 
 export async function updateProductRating(productId: string, rating: number) {
   try {
-    await pb.collection('products').update(productId, { rating })
+    await productsApi.updateProduct(productId, { rating })
     revalidatePath("/")
     return { success: true }
   } catch (err) {
@@ -120,14 +119,15 @@ export async function filterProducts(filters: any) {
     if (filters.store) filter += ` && store = "${filters.store}"`
     if (filters.query) filter += ` && name ~ "${filters.query}"`
     
-    const products = await pb.collection('products').getList(1, 50, {
-      filter,
-      sort: '-created',
-      expand: 'category'
+    const result = await productsApi.getProducts({
+      page: 1,
+      perPage: 50,
+      active: true,
+      search: filters.query,
     })
     
     // Group products by category
-    const groupedProducts = products.items.reduce((acc: any, product: any) => {
+    const groupedProducts = result.data.reduce((acc: any, product: any) => {
       const categoryName = product.expand?.category?.name || product.category || 'Other'
       
       if (!acc[categoryName]) {

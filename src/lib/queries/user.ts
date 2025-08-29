@@ -4,32 +4,31 @@ import { cache } from "react"
 import { unstable_noStore as noStore } from "next/cache"
 import { cookies } from "next/headers"
 import { pb, type PBUser, COLLECTIONS } from "@/lib/pocketbase"
+import { authApi, type User } from "@/lib/api"
 
 /**
  * Get cached user from PocketBase server-side
  * Cache is used with a data-fetching function like fetch to share a data snapshot between components.
  * @see https://react.dev/reference/react/cache#reference
  */
-export const getCachedUser = cache(async (): Promise<PBUser | null> => {
+export const getCachedUser = cache(async (): Promise<User | null> => {
   try {
     const cookieStore = await cookies()
-    const authCookie = cookieStore.get('pb_auth')
+    const authToken = cookieStore.get('auth_token')
+    const userCookie = cookieStore.get('user')
     
-    if (!authCookie?.value) {
+    if (!authToken?.value || !userCookie?.value) {
       return null
     }
 
-    // Load auth data from cookie
-    pb.authStore.loadFromCookie(authCookie.value)
-    
-    if (!pb.authStore.isValid) {
+    // Parse user data from cookie
+    try {
+      const userData = JSON.parse(decodeURIComponent(userCookie.value)) as User
+      return userData
+    } catch (error) {
+      console.error('Failed to parse user data from cookie:', error)
       return null
     }
-
-    // Verify and refresh token if needed
-    await pb.collection(COLLECTIONS.USERS).authRefresh()
-    
-    return pb.authStore.model as any as PBUser
   } catch (error) {
     console.error('Server-side auth check failed:', error)
     return null

@@ -25,21 +25,30 @@ export default async function DashboardStoreLayout({
   const { storeId } = await params
   const decodedStoreId = decodeURIComponent(storeId)
 
+  console.log('=== STORE LAYOUT DEBUG ===')
+  console.log('Original storeId from params:', storeId)
+  console.log('Decoded storeId:', decodedStoreId)
+  console.log('StoreId type:', typeof storeId)
+  console.log('StoreId length:', storeId.length)
+
   const user = await getCachedUser()
 
   if (!user) {
     redirect("/signin")
   }
 
-  // Validate storeId format
-  if (!storeId || storeId.length < 15) {
-    console.error('Invalid storeId format:', storeId)
-    redirect("/dashboard")
-  }
+  console.log('User found:', user.id)
 
   const stores = await getStoresByUserId({ userId: user.id })
   console.log('User stores:', stores.map(s => ({ id: s.id, name: s.name })))
   console.log('Looking for storeId:', decodedStoreId)
+  console.log('Raw storeId from params:', storeId)
+
+  // Handle invalid storeId cases
+  if (!storeId || storeId === 'storeId' || storeId === 'invalid') {
+    console.error('Invalid storeId provided:', storeId)
+    redirect("/dashboard")
+  }
   
   const userStore = stores.find(store => store.id === decodedStoreId)
   
@@ -47,6 +56,15 @@ export default async function DashboardStoreLayout({
   if (!userStore) {
     console.error('Store not found or does not belong to user:', decodedStoreId)
     console.error('Available stores:', stores.map(s => s.id))
+    console.error('Total stores found:', stores.length)
+    
+    // If no stores exist, redirect to onboarding
+    if (stores.length === 0) {
+      console.log('No stores found, redirecting to onboarding')
+      redirect("/onboarding")
+    }
+    
+    // If stores exist but storeId doesn't match, redirect to dashboard
     redirect("/dashboard")
   }
 

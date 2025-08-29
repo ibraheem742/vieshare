@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 
-import { useAuth } from "@/lib/hooks/use-auth"
+import { useAuth } from "@/lib/hooks/use-auth-axios"
 import { cn } from "@/lib/utils"
 import { useMounted } from "@/hooks/use-mounted"
 import { Button, buttonVariants } from "@/components/ui/button"

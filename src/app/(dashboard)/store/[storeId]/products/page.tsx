@@ -6,8 +6,9 @@ import Link from "next/link"
 import { env } from "@/env.js"
 import type { SearchParams } from "@/types"
 import { pb, COLLECTIONS } from "@/lib/pocketbase"
-import type { Product, ProductWithRelations } from "@/lib/pocketbase"
-import type { ListResult } from "pocketbase"
+import type { ProductWithRelations } from "@/lib/pocketbase"
+import { serverStoresApi } from "@/lib/api/server"
+type ListResult<T> = { items: T[]; totalItems: number; page: number; perPage: number; totalPages: number; }
 import { getCategories } from "@/lib/queries/product"
 
 import { storesProductsSearchParamsSchema } from "@/lib/validations/params"
@@ -40,7 +41,7 @@ export default async function ProductsPage({
   const { page, per_page, sort, name, category, from, to } =
     storesProductsSearchParamsSchema.parse(resolvedSearchParams)
 
-  const store = await pb.collection(COLLECTIONS.STORES).getOne(storeId).catch(() => null)
+  const store = await serverStoresApi.getStore(storeId)
 
   if (!store) {
     notFound()
@@ -65,41 +66,29 @@ export default async function ProductsPage({
   const fromDay = from ? new Date(from) : undefined
   const toDay = to ? new Date(to) : undefined
 
-  // PocketBase query for products
+  // Server API query for products
   const productsPromise = (async () => {
     noStore()
     try {
-      let filter = `store = "${storeId}"`
-      
-      // Add name filter
-      if (name) {
-        filter += ` && name ~ "${name}"`
-      }
-      
-      // Add category filter
-      if (categoryIds.length > 0) {
-        filter += ` && category in (${categoryIds.map(id => `"${id}"`).join(', ')})`
-      }
-      
-      // Add date range filter
-      if (fromDay && toDay) {
-        filter += ` && created >= "${fromDay.toISOString()}" && created <= "${toDay.toISOString()}"`
-      }
-      
       const sortField = column === 'created' ? 'created' : column
       const sortOrder = order === 'asc' ? '+' : '-'
+      const sort = `${sortOrder}${sortField || 'created'}`
       
-      const products: ListResult<ProductWithRelations> = await pb.collection(COLLECTIONS.PRODUCTS).getList<ProductWithRelations>(fallbackPage, limit, {
-        filter,
-        sort: `${sortOrder}${sortField || 'created'}`,
-        expand: 'category,store'
-      })
+      const filters = {
+        name,
+        categoryIds,
+        fromDay: fromDay?.toISOString(),
+        toDay: toDay?.toISOString(),
+        sort
+      }
+      
+      const products = await serverStoresApi.getStoreProducts(storeId, fallbackPage, limit, filters)
       
       return {
-        data: products.items.map((product: ProductWithRelations) => ({
+        data: products.items.map((product: any) => ({
           id: product.id,
           name: product.name,
-          category: product.category, // Use the relation field
+          category: typeof product.category === 'string' ? product.category : (product.category as any)?.name ?? 'Unknown',
           price: product.price,
           inventory: product.inventory,
           rating: product.rating,
@@ -108,7 +97,7 @@ export default async function ProductsPage({
         pageCount: Math.ceil(products.totalItems / limit)
       }
     } catch (err) {
-      console.error(err)
+      console.error('Error fetching products:', err)
       return {
         data: [],
         pageCount: 0

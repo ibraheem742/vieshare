@@ -7,7 +7,7 @@ import { MinusIcon, PlusIcon, TrashIcon } from "@radix-ui/react-icons"
 
 import { useCartSafe, useCartInitializer } from "@/lib/hooks/use-cart"
 import { formatPrice } from "@/lib/utils"
-import { getImageUrls } from "@/lib/pocketbase-helpers"
+import { getProductImageUrl } from "@/lib/utils/images"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
@@ -63,15 +63,8 @@ export function CartItems() {
             const product = item.expand?.product
             if (!product) return null
 
-            // Generate correct image URL using the same helper as ProductCard
-            const imageUrl = product.images && product.images.length > 0
-              ? getImageUrls(
-                  product,
-                  Array.isArray(product.images) 
-                    ? product.images 
-                    : [product.images]
-                )[0]
-              : null
+            // Generate correct image URL using new helper
+            const imageUrl = getProductImageUrl(product, 0)
             
             return (
               <div

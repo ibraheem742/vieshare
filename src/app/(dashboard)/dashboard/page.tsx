@@ -38,6 +38,11 @@ export default async function DashboardPage() {
   }
 
   const stores = await getStoresByUserId({ userId: user.id })
+  
+  // Debug logging
+  console.log('Dashboard - User ID:', user.id)
+  console.log('Dashboard - Stores found:', stores.length)
+  console.log('Dashboard - Store details:', stores.map(s => ({ id: s.id, name: s.name })))
 
   return (
     <Shell variant="sidebar">
@@ -125,7 +130,7 @@ export default async function DashboardPage() {
                           Plan: <span className="capitalize">{store.plan || 'free'}</span>
                         </div>
                         <Button asChild size="sm" variant="outline">
-                          <Link href={`/store/${store.id}`}>
+                          <Link href={`/store/${store.id || 'invalid'}`}>
                             Manage
                             <Icons.arrowRight className="ml-2 h-4 w-4" />
                           </Link>

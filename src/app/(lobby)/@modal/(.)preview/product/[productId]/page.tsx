@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import type { StoredFile } from "@/types"
+// Remove unused import
 import { EnterFullScreenIcon } from "@radix-ui/react-icons"
 
 import { pb } from "@/lib/pocketbase"

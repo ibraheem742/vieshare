@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import { env } from "@/env.js"
 import { pb, COLLECTIONS } from "@/lib/pocketbase"
 import type { Product } from "@/lib/pocketbase"
-import type { ListResult } from "pocketbase"
+// Remove unused import
 
 import { getCategories, getSubcategories } from "@/lib/queries/product"
 import {

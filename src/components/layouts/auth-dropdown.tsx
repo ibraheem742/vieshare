@@ -5,8 +5,8 @@ import Link from "next/link"
 import { DashboardIcon, ExitIcon, GearIcon } from "@radix-ui/react-icons"
 
 import { cn } from "@/lib/utils"
-import { useAuth } from "@/lib/hooks/use-auth"
-import { type PBUser } from "@/lib/pocketbase"
+import { useAuth } from "@/lib/hooks/use-auth-axios"
+import { type User } from "@/lib/api/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button, type ButtonProps } from "@/components/ui/button"
 import {

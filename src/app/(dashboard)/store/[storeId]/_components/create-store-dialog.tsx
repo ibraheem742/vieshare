@@ -73,7 +73,7 @@ export function CreateStoreDialog({
     },
   })
 
-  function onSubmit(input: CreateStoreSchema) {
+  const onSubmit = (input: CreateStoreSchema): void => {
     startCreateTransaction(async () => {
       const { data, error } = await createStore({ ...input, userId })
 

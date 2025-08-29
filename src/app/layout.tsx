@@ -13,7 +13,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { Analytics } from "@/components/analytics"
 import { ThemeProvider } from "@/components/providers"
 import { TailwindIndicator } from "@/components/tailwind-indicator"
-import { AuthProvider } from "@/lib/hooks/use-auth"
+import { AuthProvider } from "@/lib/hooks/use-auth-axios"
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),

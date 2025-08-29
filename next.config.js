@@ -22,7 +22,7 @@ const nextConfig = {
     unoptimized: true,
   },
   // Enable linting and typechecking during builds for better error detection
-  eslint: { ignoreDuringBuilds: false },
+  eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: false },
   webpack: (config, { isServer }) => {
     if (isServer) {

@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { redirect } from "next/navigation"
-import { useAuth } from "@/lib/hooks/use-auth"
+import { useAuth } from "@/lib/hooks/use-auth-axios"
 
 import { Skeleton } from "@/components/ui/skeleton"
 import { GridPattern } from "@/components/grid-pattern"

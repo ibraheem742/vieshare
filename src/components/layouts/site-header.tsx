@@ -1,7 +1,7 @@
 "use client"
 
 import { siteConfig } from "@/config/site"
-import { useAuth } from "@/lib/hooks/use-auth"
+import { useAuth } from "@/lib/hooks/use-auth-axios"
 import { AuthDropdown } from "@/components/layouts/auth-dropdown"
 import { MainNav } from "@/components/layouts/main-nav"
 import { MobileNav } from "@/components/layouts/mobile-nav"

@@ -5,25 +5,24 @@ import {
 } from "next/cache"
 import type { SearchParams } from "@/types"
 
-import { pb, COLLECTIONS, type Store, type Product, type Order, type Customer } from "@/lib/pocketbase"
+import { storesApi, type Store, type Product, type Order, type Customer } from "@/lib/api"
+import { pb, COLLECTIONS } from "@/lib/pocketbase"
+import { serverStoresApi } from "@/lib/api/server"
 
 export async function getFeaturedStores(): Promise<Store[]> {
   noStore()
   try {
-    const records = await pb.collection(COLLECTIONS.STORES).getList<Store>(1, 8, {
-      filter: 'active = true',
-      sort: '-created',
-      expand: 'user'
-    })
+    const stores = await storesApi.getUserStores()
+    
+    // Get only active stores, limit to 8
+    const activeStores = stores.filter(store => store.active).slice(0, 8)
 
     const storesWithProductCount = await Promise.all(
-      records.items.map(async (store) => {
-        const products = await pb.collection(COLLECTIONS.PRODUCTS).getList(1, 1, {
-          filter: `store = "${store.id}"`,
-        })
+      activeStores.map(async (store) => {
+        // For now, return 0 product count or implement a specific API call  
         return {
           ...store,
-          productCount: products.totalItems,
+          productCount: 0, // TODO: Implement product count API
         }
       })
     )
@@ -177,12 +176,9 @@ export async function getStoreCustomers(input: { storeId: string } & SearchParam
 export async function getStoresByUserId(input: { userId: string }): Promise<Store[]> {
   noStore()
   try {
-    const records = await pb.collection(COLLECTIONS.STORES).getFullList<Store>({
-      filter: `user = "${input.userId}"`,
-      sort: '-created',
-      expand: 'user'
-    })
-    return records
+    // Use server-side API with userId filter
+    const stores = await serverStoresApi.getUserStores(input.userId)
+    return stores
   } catch (err) {
     console.error('Error fetching user stores:', err)
     return []

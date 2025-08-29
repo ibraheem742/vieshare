@@ -45,3 +45,6 @@ yarn-error.log*
 # typescript
 .contentlayer
 *.tsbuildinfo
+
+/vieshare-gin-private
+/vieshare-axum-private

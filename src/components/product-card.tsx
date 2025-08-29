@@ -3,7 +3,7 @@
 import * as React from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { type Product } from "@/lib/pocketbase"
+import { type Product } from "@/lib/api/types"
 import { CheckIcon, EyeOpenIcon, PlusIcon } from "@radix-ui/react-icons"
 import { toast } from "sonner"
 
@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/card"
 import { Icons } from "@/components/icons"
 import { PlaceholderImage } from "@/components/placeholder-image"
-import { getImageUrls } from "@/lib/pocketbase-helpers"
+import { getProductImageUrl } from "@/lib/utils/images"
 
 interface ProductCardProps extends React.HTMLAttributes<HTMLDivElement> {
   product: Pick<Product, "id" | "name" | "price" | "inventory"> & {
@@ -53,14 +53,7 @@ export function ProductCard({
   }
 
   // Construct the full image URL
-  const imageUrl = product.images
-    ? getImageUrls(
-        product,
-        Array.isArray(product.images)
-          ? product.images
-          : [product.images]
-      )[0]
-    : null;
+  const imageUrl = getProductImageUrl(product, 0)
 
   return (
     <Card
