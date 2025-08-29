@@ -7,10 +7,16 @@ import { NextResponse } from "next/server"
 
 // Temporary middleware - passes through all requests
 // TODO: Implement PocketBase authentication middleware
-export default function middleware(_request: NextRequest) {
-  // For now, just pass through all requests
-  // Later, implement PocketBase auth checks here
-  return NextResponse.next()
+export default function middleware(request: NextRequest) {
+  try {
+    // For now, just pass through all requests
+    // Later, implement PocketBase auth checks here
+    return NextResponse.next()
+  } catch (error) {
+    console.error('Middleware error:', error)
+    // Return a proper response even if middleware fails
+    return NextResponse.next()
+  }
 }
 
 // export default clerkMiddleware((auth, req) => {

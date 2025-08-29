@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useRouter } from "next/navigation"
 import type { StoredFile } from "@/types"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -61,6 +62,7 @@ export function CreateProductForm({
   promises,
 }: CreateProductFormProps) {
   const { categories, subcategories } = React.use(promises)
+  const router = useRouter()
 
   const [loading, setLoading] = React.useState(false)
   const { uploadFiles, progresses, uploadedFiles, isUploading } =
@@ -91,10 +93,15 @@ export function CreateProductForm({
       }),
       {
         loading: "Adding product...",
-        success: () => {
+        success: (result) => {
           form.reset()
           setLoading(false)
-          return "Product"
+          if (result?.success) {
+            // Redirect to products page on success
+            router.push(`/store/${storeId}/products`)
+            return "Product added successfully!"
+          }
+          return "Product added!"
         },
         error: (err) => {
           setLoading(false)

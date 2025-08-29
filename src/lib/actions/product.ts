@@ -2,7 +2,7 @@
 
 import { unstable_noStore as noStore, revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-import { pb, Product } from "@/lib/pocketbase"
+import { pb, Product, COLLECTIONS } from "@/lib/pocketbase"
 
 export async function createProduct(storeId: string, formData: FormData) {
   try {
@@ -72,13 +72,14 @@ export async function addProduct(storeId: string, data: any) {
       description: data.description || "",
       price: data.price,
       inventory: data.inventory || 0,
-      category: data.category,
-      subcategory: data.subcategory || "",
+      category: data.categoryId,
+      subcategory: data.subcategoryId || "",
       store: storeId,
       active: true
     }
     
-    await pb.collection('products').create(productData)
+    await pb.collection(COLLECTIONS.PRODUCTS).create(productData)
+    revalidatePath(`/store/${storeId}/products`)
     revalidatePath("/")
     return { success: true }
   } catch (err) {

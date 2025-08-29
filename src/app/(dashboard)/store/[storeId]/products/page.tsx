@@ -2,6 +2,7 @@ import * as React from "react"
 import { type Metadata } from "next"
 import { unstable_noStore as noStore } from "next/cache"
 import { notFound } from "next/navigation"
+import Link from "next/link"
 import { env } from "@/env.js"
 import type { SearchParams } from "@/types"
 import { pb, COLLECTIONS } from "@/lib/pocketbase"
@@ -10,6 +11,7 @@ import type { ListResult } from "pocketbase"
 import { getCategories } from "@/lib/queries/product"
 
 import { storesProductsSearchParamsSchema } from "@/lib/validations/params"
+import { Button } from "@/components/ui/button"
 import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton"
 import { DateRangePicker } from "@/components/date-range-picker"
 import { ProductsTable } from "@/components/tables/products-table"
@@ -118,7 +120,14 @@ export default async function ProductsPage({
     <div className="space-y-6">
       <div className="flex flex-col gap-4 xs:flex-row xs:items-center xs:justify-between">
         <h2 className="text-2xl font-bold tracking-tight">Products</h2>
-        <DateRangePicker align="end" />
+        <div className="flex items-center gap-2">
+          <Button asChild>
+            <Link href={`/store/${storeId}/products/new`}>
+              Add product
+            </Link>
+          </Button>
+          <DateRangePicker align="end" />
+        </div>
       </div>
       <React.Suspense fallback={<DataTableSkeleton columnCount={6} />}>
         <ProductsTable promise={productsPromise} categoriesPromise={categoriesPromise} storeId={storeId} />

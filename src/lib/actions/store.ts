@@ -25,6 +25,7 @@ export async function createStore(input: CreateStoreSchema & { userId: string })
       product_limit: 10,
       tag_limit: 5,
       variant_limit: 5,
+      active: true,
     })
 
     revalidatePath("/dashboard/stores")
