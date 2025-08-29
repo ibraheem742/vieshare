@@ -86,7 +86,7 @@ export async function Lobby({
             Buy now
           </Link>
           <Link
-            href="/onboarding"
+            href="/dashboard"
             className={cn(buttonVariants({ variant: "outline" }))}
           >
             Sell now
