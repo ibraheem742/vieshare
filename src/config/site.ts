@@ -49,13 +49,13 @@ export const siteConfig = {
       items: [
         {
           title: "All",
-          href: `/categories/${slugify(category.name)}`,
+          href: `/collections/${slugify(category.name)}`,
           description: `All ${category.name}.`,
           items: [],
         },
         ...category.subcategories.map((subcategory) => ({
           title: subcategory.name,
-          href: `/categories/${slugify(category.name)}/${slugify(subcategory.name)}`,
+          href: `/collections/${slugify(category.name)}`,
           description: subcategory.description,
           items: [],
         })),
