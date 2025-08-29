@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import type { StoredFile } from "@/types"
+// Removed StoredFile import - now using UploadedFile from hook
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -17,7 +17,7 @@ import {
   createProductSchema,
   type CreateProductSchema,
 } from "@/lib/validations/product"
-import { useUploadFile } from "@/hooks/use-upload-file"
+import { usePocketbaseUpload } from "@/hooks/use-pocketbase-upload"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -46,7 +46,7 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { FileUploader } from "@/components/file-uploader"
-import { Files } from "@/components/files"
+import { PocketbaseFiles } from "@/components/pocketbase-files"
 import { Icons } from "@/components/icons"
 
 interface CreateProductFormProps {
@@ -65,8 +65,9 @@ export function CreateProductForm({
   const router = useRouter()
 
   const [loading, setLoading] = React.useState(false)
-  const { uploadFiles, progresses, uploadedFiles, isUploading } =
-    useUploadFile("productImage")
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = React.useState(false)
+  const { uploadFiles, progresses, uploadedFiles, isUploading, clearFiles, removeFile } =
+    usePocketbaseUpload({ maxFiles: 4, maxFileSize: 4 * 1024 * 1024 })
 
   const form = useForm<CreateProductSchema>({
     resolver: zodResolver(createProductSchema),
@@ -81,34 +82,34 @@ export function CreateProductForm({
     },
   })
 
-  function onSubmit(input: CreateProductSchema) {
+  async function onSubmit(input: CreateProductSchema) {
     setLoading(true)
 
-    toast.promise(
-      uploadFiles(input.images ?? []).then(() => {
-        return addProduct(storeId, {
-          ...input,
-          images: uploadedFiles,
-        })
-      }),
-      {
-        loading: "Adding product...",
-        success: (result) => {
-          form.reset()
-          setLoading(false)
-          if (result?.success) {
-            // Redirect to products page on success
-            router.push(`/store/${storeId}/products`)
-            return "Product added successfully!"
-          }
-          return "Product added!"
-        },
-        error: (err) => {
-          setLoading(false)
-          return getErrorMessage(err)
-        },
+    try {
+      // Upload files first if any
+      let filesToUpload = uploadedFiles
+      if (input.images && input.images.length > 0) {
+        filesToUpload = await uploadFiles(input.images)
       }
-    )
+
+      const result = await addProduct(storeId, {
+        ...input,
+        images: filesToUpload,
+      })
+
+      if (result?.success) {
+        form.reset()
+        clearFiles()
+        router.push(`/store/${storeId}/products`)
+        toast.success("Product added successfully!")
+      } else {
+        toast.error(result?.error || "Failed to add product")
+      }
+    } catch (error) {
+      toast.error(getErrorMessage(error))
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -259,7 +260,7 @@ export function CreateProductForm({
                 <FormItem className="w-full">
                   <FormLabel>Images</FormLabel>
                   <FormControl>
-                    <Dialog>
+                    <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
                       <DialogTrigger asChild>
                         <Button variant="outline">Upload files</Button>
                       </DialogTrigger>
@@ -272,7 +273,15 @@ export function CreateProductForm({
                         </DialogHeader>
                         <FileUploader
                           value={field.value ?? []}
-                          onValueChange={field.onChange}
+                          onValueChange={(files) => {
+                            field.onChange(files)
+                          }}
+                          onUpload={async (files) => {
+                            await uploadFiles(files)
+                            field.onChange([]) // Clear form field
+                            setIsUploadDialogOpen(false) // Close dialog
+                            toast.success(`${files.length} file(s) uploaded successfully`)
+                          }}
                           maxFiles={4}
                           maxSize={4 * 1024 * 1024}
                           progresses={progresses}
@@ -284,7 +293,7 @@ export function CreateProductForm({
                   <FormMessage />
                 </FormItem>
                 {uploadedFiles.length > 0 ? (
-                  <Files files={uploadedFiles} />
+                  <PocketbaseFiles files={uploadedFiles} onRemove={removeFile} />
                 ) : null}
               </div>
             )}

@@ -17,7 +17,7 @@ import {
   updateProductSchema,
   type UpdateProductSchema,
 } from "@/lib/validations/product"
-import { useUploadFile } from "@/hooks/use-upload-file"
+import { usePocketbaseUpload } from "@/hooks/use-pocketbase-upload"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -47,7 +47,7 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { FileUploader } from "@/components/file-uploader"
-import { Files } from "@/components/files"
+import { PocketbaseFiles } from "@/components/pocketbase-files"
 import { Icons } from "@/components/icons"
 
 interface UpdateProductFormProps {
@@ -67,16 +67,9 @@ export function UpdateProductForm({
   const router = useRouter()
   const [isUpdating, setIsUpdating] = React.useState(false)
   const [isDeleting, setIsDeleting] = React.useState(false)
-  const { uploadFiles, progresses, uploadedFiles, isUploading } = useUploadFile(
-    "productImage",
-    {
-      defaultUploadedFiles: (Array.isArray(product.images) ? product.images : product.images ? [product.images] : []).map((url: string, index: number) => ({
-        id: `existing-${index}`,
-        name: `image-${index}`,
-        url: url,
-      })),
-    } 
-  )
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = React.useState(false)
+  const { uploadFiles, progresses, uploadedFiles, isUploading, clearFiles, removeFile } =
+    usePocketbaseUpload({ maxFiles: 4, maxFileSize: 4 * 1024 * 1024 })
 
   const form = useForm<UpdateProductSchema>({
     resolver: zodResolver(updateProductSchema),
@@ -256,7 +249,7 @@ export function UpdateProductForm({
               <FormItem className="w-full">
                 <FormLabel>Images</FormLabel>
                 <FormControl>
-                  <Dialog>
+                  <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
                     <DialogTrigger asChild>
                       <Button variant="outline">Upload files</Button>
                     </DialogTrigger>
@@ -269,7 +262,15 @@ export function UpdateProductForm({
                       </DialogHeader>
                       <FileUploader
                         value={field.value ?? []}
-                        onValueChange={field.onChange}
+                        onValueChange={(files) => {
+                          field.onChange(files)
+                        }}
+                        onUpload={async (files) => {
+                          await uploadFiles(files)
+                          field.onChange([]) // Clear form field
+                          setIsUploadDialogOpen(false) // Close dialog
+                          toast.success(`${files.length} file(s) uploaded successfully`)
+                        }}
                         maxFiles={4}
                         maxSize={4 * 1024 * 1024}
                         progresses={progresses}
@@ -281,7 +282,7 @@ export function UpdateProductForm({
                 <FormMessage />
               </FormItem>
               {uploadedFiles.length > 0 ? (
-                <Files files={uploadedFiles} />
+                <PocketbaseFiles files={uploadedFiles} onRemove={removeFile} />
               ) : null}
             </div>
           )}

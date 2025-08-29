@@ -3,7 +3,7 @@
 // Removed Stripe - will design payment gateway later
 
 
-import { type ClientUploadedFileData } from "uploadthing/types"
+// Removed uploadthing dependency
 
 import type { Icons } from "@/components/icons"
 
@@ -124,7 +124,7 @@ export interface Subcategory {
   updated: string
 }
 
-export type UploadedFile<T = unknown> = ClientUploadedFileData<T>;
+// Removed uploadthing UploadedFile type - now using StoredFile
 
 export interface StoredFile {
   id: string

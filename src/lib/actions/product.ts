@@ -67,23 +67,35 @@ export async function checkProductInventory(productId: string) {
 
 export async function addProduct(storeId: string, data: any) {
   try {
-    const productData = {
-      name: data.name,
-      description: data.description || "",
-      price: data.price,
-      inventory: data.inventory || 0,
-      category: data.categoryId,
-      subcategory: data.subcategoryId || "",
-      store: storeId,
-      active: true
+    // Create FormData for file upload
+    const formData = new FormData()
+    
+    // Add basic product data
+    formData.append('name', data.name)
+    formData.append('description', data.description || "")
+    formData.append('price', data.price)
+    formData.append('inventory', data.inventory || 0)
+    formData.append('category', data.categoryId)
+    formData.append('subcategory', data.subcategoryId || "")
+    formData.append('store', storeId)
+    formData.append('active', 'true')
+    
+    // Add image files if any
+    if (data.images && data.images.length > 0) {
+      data.images.forEach((fileData: any) => {
+        if (fileData.file) {
+          formData.append('images', fileData.file)
+        }
+      })
     }
     
-    await pb.collection(COLLECTIONS.PRODUCTS).create(productData)
+    const product = await pb.collection(COLLECTIONS.PRODUCTS).create(formData)
+    
     revalidatePath(`/store/${storeId}/products`)
     revalidatePath("/")
-    return { success: true }
+    return { success: true, data: product }
   } catch (err) {
-    console.error(err)
+    console.error('Product creation error:', err)
     return { success: false, error: "Failed to add product" }
   }
 }
