@@ -80,9 +80,19 @@ export function combineFilters(...filters: (string | undefined)[]): string {
 
 // File URL helpers (for images stored via PocketBase file system)
 export function getFileUrl(record: any, filename: string, thumb?: string): string {
+  if (!record || !filename) {
+    return ''
+  }
+
   // Construct PocketBase file URL
   const baseUrl = process.env.NEXT_PUBLIC_POCKETBASE_URL || 'https://pocketbase.vietopik.com'
-  let url = `${baseUrl}/api/files/${record.collectionName || record.collectionId}/${record.id}/${filename}`
+  const collection = record.collectionName || record.collectionId || 'products'
+  
+  if (!record.id) {
+    return ''
+  }
+  
+  let url = `${baseUrl}/api/files/${collection}/${record.id}/${filename}`
   
   if (thumb) {
     url += `?thumb=${thumb}`

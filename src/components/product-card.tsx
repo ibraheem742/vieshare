@@ -7,7 +7,7 @@ import { type Product } from "@/lib/api/types"
 import { CheckIcon, EyeOpenIcon, PlusIcon } from "@radix-ui/react-icons"
 import { toast } from "sonner"
 
-import { addToCart } from "@/lib/actions/cart"
+import { useCartSafe } from "@/lib/hooks/use-cart"
 import { cn, formatPrice } from "@/lib/utils"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -42,6 +42,7 @@ export function ProductCard({
   ...props
 }: ProductCardProps) {
   const [isUpdatePending, startUpdateTransition] = React.useTransition()
+  const { addItem } = useCartSafe()
   
   // Debug for products with images
   if (product.images && product.images.length > 0) {
@@ -105,12 +106,10 @@ export function ProductCard({
               className="h-8 w-full rounded-sm"
               onClick={() => {
                 startUpdateTransition(async () => {
-                  const result = await addToCart(product.id, 1)
-                  
-                  if (result.success) {
-                    toast.success("Added to cart")
-                  } else {
-                    toast.error(result.error || "Failed to add to cart")
+                  try {
+                    await addItem(product.id, 1)
+                  } catch (error) {
+                    // Error handling is already done in the addItem hook
                   }
                 })
               }}

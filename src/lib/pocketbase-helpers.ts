@@ -1,4 +1,5 @@
 import { pb, COLLECTIONS, type PBUser } from "@/lib/pocketbase"
+import { getFileUrl as apiGetFileUrl } from "@/lib/api/helpers"
 
 /**
  * Helper functions for common PocketBase operations
@@ -95,13 +96,13 @@ export function combineFilters(...filters: (string | undefined)[]): string {
   return filters.filter(Boolean).join(' && ')
 }
 
-// File upload helpers
+// File upload helpers - use the working implementation from API helpers
 export function getFileUrl(record: any, filename: string, thumb?: string): string {
-  return pb.files.getURL(record, filename, { thumb })
+  return apiGetFileUrl(record, filename, thumb)
 }
 
 export function getImageUrls(record: any, images: string[]): string[] {
-  return images.map(img => pb.files.getURL(record, img))
+  return images.map(img => apiGetFileUrl(record, img))
 }
 
 // Real-time subscriptions

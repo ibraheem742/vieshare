@@ -14,6 +14,7 @@ import { Analytics } from "@/components/analytics"
 import { ThemeProvider } from "@/components/providers"
 import { TailwindIndicator } from "@/components/tailwind-indicator"
 import { AuthProvider } from "@/lib/hooks/use-auth-axios"
+import { CartInitializer } from "@/components/cart-initializer"
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
@@ -89,9 +90,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
           disableTransitionOnChange
         >
           <AuthProvider>
-            {children}
-            <TailwindIndicator />
-            <Analytics />
+            <CartInitializer>
+              {children}
+              <TailwindIndicator />
+              <Analytics />
+            </CartInitializer>
           </AuthProvider>
         </ThemeProvider>
         <Toaster />

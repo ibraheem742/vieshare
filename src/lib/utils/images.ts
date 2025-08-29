@@ -1,4 +1,5 @@
 import { env } from '@/env'
+import { getFileUrl } from '@/lib/api/helpers'
 
 /**
  * Helper functions for constructing image URLs from PocketBase API
@@ -11,14 +12,8 @@ export function getImageUrl(
 ): string {
   if (!record || !filename) return ''
   
-  const baseUrl = env.NEXT_PUBLIC_POCKETBASE_URL
-  let url = `${baseUrl}/api/files/${record.collectionId}/${record.id}/${filename}`
-  
-  if (thumb) {
-    url += `?thumb=${thumb}`
-  }
-  
-  return url
+  // Use the working implementation from helpers
+  return getFileUrl(record, filename, thumb)
 }
 
 export function getImageUrls(
@@ -27,11 +22,12 @@ export function getImageUrls(
 ): string[] {
   if (!record || !images || !Array.isArray(images)) return []
   
-  return images.map(img => getImageUrl(record, img))
+  // Use the working implementation from helpers
+  return images.map(img => getFileUrl(record, img))
 }
 
 export function getProductImageUrl(
-  product: { id: string; collectionId?: string; images?: string[] },
+  product: { id: string; collectionId?: string; collectionName?: string; images?: string[] },
   index = 0
 ): string | null {
   if (!product.images || !Array.isArray(product.images) || product.images.length === 0) {
@@ -41,24 +37,32 @@ export function getProductImageUrl(
   const filename = product.images[index]
   if (!filename) return null
   
-  // For products, collection is usually 'products'
+  // Try to get collection ID from multiple sources
+  const collectionId = product.collectionId || product.collectionName || 'products'
+  
   const record = {
     id: product.id,
-    collectionId: product.collectionId || 'products'
+    collectionId,
+    collectionName: collectionId
   }
   
-  return getImageUrl(record, filename)
+  // Use the working implementation from helpers
+  return getFileUrl(record, filename)
 }
 
 export function getProductImageUrls(
-  product: { id: string; collectionId?: string; images?: string[] }
+  product: { id: string; collectionId?: string; collectionName?: string; images?: string[] }
 ): string[] {
   if (!product.images || !Array.isArray(product.images)) return []
   
+  const collectionId = product.collectionId || product.collectionName || 'products'
+  
   const record = {
     id: product.id,
-    collectionId: product.collectionId || 'products'
+    collectionId,
+    collectionName: collectionId
   }
   
-  return getImageUrls(record, product.images)
+  // Use the working implementation from helpers
+  return product.images.map(img => getFileUrl(record, img))
 }

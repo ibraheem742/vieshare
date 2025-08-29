@@ -1,8 +1,8 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { pb, COLLECTIONS } from "@/lib/pocketbase"
-import { getCurrentUser } from "@/lib/pocketbase-helpers"
+import { getCachedUser } from "@/lib/queries/user"
+import { createServerApi } from "@/lib/api/server"
 
 export interface CheckoutData {
   name: string
@@ -35,7 +35,8 @@ export async function processOrder(
   cartItems: CartItem[]
 ) {
   try {
-    const user = await getCurrentUser()
+    const user = await getCachedUser()
+    const api = await createServerApi()
     
     if (!cartItems.length) {
       return {
@@ -61,12 +62,19 @@ export async function processOrder(
       user: user?.id || "", // Can be empty for guest orders
     }
 
-    const addressRecord = await pb.collection(COLLECTIONS.ADDRESSES).create(addressData)
+    const addressResponse = await api.post('/collections/addresses/records', addressData)
+    const addressRecord = addressResponse.data
 
-    // Group items by store (assuming all items are from same store for now)
-    const storeId = cartItems[0]?.expand?.product?.id ? 
-      await getProductStore(cartItems[0].expand.product.id) : 
-      null
+    // Get store ID from the first product in the cart
+    const firstProduct = cartItems[0]
+    if (!firstProduct) {
+      return {
+        success: false,
+        error: "No products in cart"
+      }
+    }
+    
+    const storeId = await getProductStore(firstProduct.product)
 
     if (!storeId) {
       return {
@@ -98,7 +106,8 @@ export async function processOrder(
       ...(checkoutData.notes && { notes: checkoutData.notes }),
     }
 
-    const orderRecord = await pb.collection(COLLECTIONS.ORDERS).create(orderData)
+    const orderResponse = await api.post('/collections/orders/records', orderData)
+    const orderRecord = orderResponse.data
 
     // Clear the user's cart after successful order
     if (user) {
@@ -124,7 +133,9 @@ export async function processOrder(
 // Helper function to get the store ID for a product
 async function getProductStore(productId: string): Promise<string | null> {
   try {
-    const product = await pb.collection(COLLECTIONS.PRODUCTS).getOne(productId)
+    const api = await createServerApi()
+    const response = await api.get(`/collections/products/records/${productId}`)
+    const product = response.data
     return product.store || null
   } catch (error) {
     console.error("Error getting product store:", error)
@@ -135,19 +146,27 @@ async function getProductStore(productId: string): Promise<string | null> {
 // Helper function to clear user's cart
 async function clearUserCart(userId: string): Promise<void> {
   try {
+    const api = await createServerApi()
+    
     // Get user's cart
-    const carts = await pb.collection(COLLECTIONS.CARTS).getFullList({
-      filter: `user = "${userId}"`,
+    const cartsResponse = await api.get('/collections/carts/records', {
+      params: {
+        filter: `user = "${userId}"`
+      }
     })
+    const carts = cartsResponse.data.items || []
 
     // Delete all cart items for each cart
     for (const cart of carts) {
-      const cartItems = await pb.collection(COLLECTIONS.CART_ITEMS).getFullList({
-        filter: `cart = "${cart.id}"`,
+      const cartItemsResponse = await api.get('/collections/cart_items/records', {
+        params: {
+          filter: `cart = "${cart.id}"`
+        }
       })
+      const cartItems = cartItemsResponse.data.items || []
 
       for (const item of cartItems) {
-        await pb.collection(COLLECTIONS.CART_ITEMS).delete(item.id)
+        await api.delete(`/collections/cart_items/records/${item.id}`)
       }
     }
   } catch (error) {

@@ -2,7 +2,9 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { env } from "@/env.js"
-import { pb, COLLECTIONS, type ProductWithRelations } from "@/lib/pocketbase"
+import { COLLECTIONS, type ProductWithRelations } from "@/lib/pocketbase"
+import { getFileUrl } from "@/lib/api/helpers"
+import { getProduct } from "@/lib/queries/product"
 
 import { formatPrice, toTitleCase } from "@/lib/utils"
 import {
@@ -33,7 +35,7 @@ export async function generateMetadata({
   const resolvedParams = await params
   const productId = decodeURIComponent(resolvedParams.productId)
 
-  const product = await pb.collection(COLLECTIONS.PRODUCTS).getOne(productId).catch(() => null)
+  const product = await getProduct({ id: productId })
 
   if (!product) {
     return {}
@@ -50,9 +52,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const resolvedParams = await params
   const productId = decodeURIComponent(resolvedParams.productId)
 
-  const product = await pb.collection(COLLECTIONS.PRODUCTS).getOne(productId, {
-    expand: 'category,store'
-  }).catch(() => null)
+  const product = await getProduct({ id: productId })
 
   if (!product) {
     notFound()
@@ -60,22 +60,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const store = product?.expand?.store || null
 
-  const otherProducts = store
-    ? await pb.collection(COLLECTIONS.PRODUCTS).getList<ProductWithRelations>(1, 4, {
-        filter: `store = "${product.store}" && id != "${productId}"`,
-        sort: '-inventory',
-        expand: 'category'
-      }).then(result => result.items.map((item: ProductWithRelations) => ({
-        ...item,
-        images: Array.isArray(item.images) ? item.images : (item.images ? [item.images] : []),
-        category: item.expand?.category?.name || null,
-      }))).catch(() => [])
-    : []
+  // For now, disable related products since we need to implement proper API call
+  const otherProducts: ProductWithRelations[] = []
 
   const carouselImages = Array.isArray(product.images)
-    ? (product.images as string[]).map((filename: string) => ({ id: filename, name: filename, url: pb.files.getURL(product, filename) }))
+    ? (product.images as string[]).map((filename: string) => ({ id: filename, name: filename, url: getFileUrl(product, filename) }))
     : product.images
-      ? [{ id: product.images as string, name: product.images as string, url: pb.files.getURL(product, product.images as string) }]
+      ? [{ id: product.images as string, name: product.images as string, url: getFileUrl(product, product.images as string) }]
       : [];
 
   console.log("ProductImageCarousel images prop:", carouselImages);
@@ -139,24 +130,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <Separator className="md:hidden" />
         </div>
       </div>
-      {store && otherProducts.length > 0 ? (
-        <div className="space-y-6 overflow-hidden">
-          <h2 className="line-clamp-1 flex-1 text-2xl font-bold">
-            More products from {store.name}
-          </h2>
-          <ScrollArea orientation="horizontal" className="pb-3.5">
-            <div className="flex gap-4">
-              {otherProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  className="min-w-[260px]"
-                />
-              ))}
-            </div>
-          </ScrollArea>
-        </div>
-      ) : null}
+      {/* Related products section temporarily disabled during image loading fixes */}
     </Shell>
   )
 }

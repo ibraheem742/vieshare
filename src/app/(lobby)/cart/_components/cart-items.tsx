@@ -7,7 +7,7 @@ import { MinusIcon, PlusIcon, TrashIcon } from "@radix-ui/react-icons"
 
 import { useCartSafe, useCartInitializer } from "@/lib/hooks/use-cart"
 import { formatPrice } from "@/lib/utils"
-import { getProductImageUrl } from "@/lib/utils/images"
+import { getFileUrl } from "@/lib/api/helpers"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
@@ -63,8 +63,22 @@ export function CartItems() {
             const product = item.expand?.product
             if (!product) return null
 
-            // Generate correct image URL using new helper
-            const imageUrl = getProductImageUrl(product, 0)
+            // Handle both string and array formats from PocketBase (same as products page)
+            let imagesArray: string[] = [];
+            if (product.images) {
+              if (typeof product.images === 'string') {
+                // Single image as string
+                imagesArray = [product.images];
+              } else if (Array.isArray(product.images)) {
+                // Multiple images as array
+                imagesArray = product.images;
+              }
+            }
+            
+            // Use the same method as products page for generating image URL
+            const imageUrl = imagesArray.length > 0 && imagesArray[0]
+              ? getFileUrl(product, imagesArray[0])
+              : null;
             
             return (
               <div
@@ -79,9 +93,6 @@ export function CartItems() {
                       fill
                       className="object-cover"
                       sizes="64px"
-                      onError={(_e) => {
-                        console.error(`Failed to load image for ${product.name}:`, imageUrl)
-                      }}
                     />
                   ) : (
                     <PlaceholderImage className="rounded-md" asChild />

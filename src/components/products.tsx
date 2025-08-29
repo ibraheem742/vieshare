@@ -4,7 +4,7 @@ import * as React from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import type { Option, Store } from "@/types"
 import type { ProductWithRelations } from "@/lib/pocketbase"
-import { pb } from "@/lib/pocketbase"
+import { getFileUrl } from "@/lib/api/helpers"
 import {
   ChevronDownIcon,
   ChevronLeftIcon,
@@ -496,20 +496,9 @@ export function Products({
           }
           
           const imageUrls = imagesArray.map(filename => 
-            pb.files.getURL(product, filename)
+            getFileUrl(product, filename)
           );
           
-          // Debug for products with images
-          if (imagesArray.length > 0) {
-            console.log(`Product "${product.name}" with images:`, {
-              id: product.id,
-              collectionId: product.collectionId,
-              collectionName: product.collectionName,
-              rawImages: product.images,
-              imagesArray: imagesArray,
-              generatedUrls: imageUrls
-            });
-          }
           
           return (
             <ProductCard 
